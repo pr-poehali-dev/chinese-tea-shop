@@ -237,12 +237,13 @@
 
 .nav-link {
   font-family: "Montserrat", sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--dark);
+  color: var(--cream);
   transition: color 0.3s ease;
   text-decoration: none;
+  font-weight: 400;
 }
 .nav-link:hover {
   color: var(--gold);
@@ -263,9 +264,9 @@
 .hero-overlay {
   background: linear-gradient(
     to right,
-    rgba(28, 22, 16, 0.75) 0%,
-    rgba(28, 22, 16, 0.4) 60%,
-    rgba(28, 22, 16, 0.1) 100%
+    rgba(28, 22, 16, 0.6) 0%,
+    rgba(28, 22, 16, 0.25) 55%,
+    rgba(28, 22, 16, 0.05) 100%
   );
 }
 

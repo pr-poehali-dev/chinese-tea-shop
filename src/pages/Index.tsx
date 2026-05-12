@@ -5,11 +5,14 @@ import TeaDetail from "@/components/TeaDetail";
 import CatalogFilters, { FilterState } from "@/components/CatalogFilters";
 
 const IMG = {
-  hero: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/03046ac1-b07a-4e4d-af17-78c1d413f3b4.jpg",
+  hero: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/34bceae3-3def-4e2f-bd26-f6d8573a6b7b.jpg",
   puer: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/099a1827-3fbf-494f-9dae-d1846e90cac8.jpg",
   gift: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/0277c2d0-edce-40da-bc2d-2a907cc411f2.jpg",
   gaba: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/7b6757d2-7f39-41aa-a73c-3624d17b34bc.jpg",
   white: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/0eede399-603a-4ce6-be32-81896917b3fb.jpg",
+  reviewer1: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/6f24c276-3aff-46e4-a39f-dbaeca62b926.jpg",
+  reviewer2: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/4db987d4-31c8-48a8-9fec-f023c2fb3a51.jpg",
+  reviewer3: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/8c8fb5cd-a743-4466-8941-da818fd20588.jpg",
 };
 
 const teas = [
@@ -204,7 +207,7 @@ export default function Index() {
     <div className="min-h-screen bg-cream font-body">
 
       {/* ═══ ШАПКА ═══ */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-cream/96 backdrop-blur-sm border-b border-gold/20">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-tea-dark border-b border-gold/40 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-20 sm:h-24">
 
@@ -215,8 +218,8 @@ export default function Index() {
             >
               {/* Иконка-эмблема */}
               <div className="relative w-11 h-11 sm:w-12 sm:h-12 shrink-0">
-                <div className="absolute inset-0 border border-gold rounded-full" />
-                <div className="absolute inset-1 border border-gold/40 rounded-full" />
+                <div className="absolute inset-0 border-2 border-gold rounded-full" />
+                <div className="absolute inset-1 border border-gold/60 rounded-full" />
                 <div className="absolute inset-0 flex items-center justify-center font-display text-gold text-xl sm:text-2xl leading-none">
                   月
                 </div>
@@ -224,7 +227,7 @@ export default function Index() {
 
               {/* Название */}
               <div className="flex flex-col leading-none">
-                <span className="font-display text-2xl sm:text-3xl font-light text-tea-dark tracking-wide group-hover:text-gold transition-colors">
+                <span className="font-display text-2xl sm:text-3xl font-medium text-cream tracking-wide group-hover:text-gold transition-colors">
                   Лунный Чай
                 </span>
                 <span className="text-[9px] sm:text-[10px] font-body tracking-[0.3em] uppercase text-gold mt-1">
@@ -282,12 +285,12 @@ export default function Index() {
         </div>
 
         {menuOpen && (
-          <div className="md:hidden bg-cream border-t border-gold/20 px-6 py-4 flex flex-col gap-4">
+          <div className="md:hidden bg-tea-dark border-t border-gold/30 px-6 py-5 flex flex-col gap-4">
             <button
               onClick={() => { setQuizOpen(true); setMenuOpen(false); }}
               className="nav-link flex items-center gap-2 text-gold"
             >
-              <Icon name="Sparkles" size={11} />
+              <Icon name="Sparkles" size={12} />
               Подобрать чай
             </button>
             {["Каталог", "Подарки", "О нас", "Доставка", "Контакты"].map(item => (
@@ -628,6 +631,105 @@ export default function Index() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ ОТЗЫВЫ ПОКУПАТЕЛЕЙ ═══ */}
+      <section className="py-16 sm:py-20 bg-tea-dark relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5 flex items-center justify-center select-none">
+          <span className="text-[18rem] font-display text-gold leading-none">客</span>
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Что говорят клиенты</p>
+            <h2 className="font-display text-4xl sm:text-5xl font-light text-cream">Отзывы покупателей</h2>
+            <div className="w-12 h-px bg-gold mx-auto my-5" />
+            <div className="flex items-center justify-center gap-3 text-cream/70">
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(i => <Icon key={i} name="Star" size={14} className="text-gold" />)}
+              </div>
+              <span className="font-body text-sm">4.9 · 847 отзывов</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            {[
+              {
+                img: IMG.reviewer1,
+                name: "Екатерина М.",
+                city: "Москва",
+                date: "12 мая 2024",
+                rating: 5,
+                tea: "Шу Пуэр «Золотой Дворец»",
+                text: "Заказываю уже третий раз — и каждый раз восхищаюсь. Чай свежий, аромат глубокий, упаковка просто сказка. Курьер привёз вовремя, всё аккуратно. Это настоящий подарок самой себе вечером после работы.",
+              },
+              {
+                img: IMG.reviewer2,
+                name: "Андрей К.",
+                city: "Санкт-Петербург",
+                date: "5 мая 2024",
+                rating: 5,
+                tea: "Да Хун Пао «Утёс»",
+                text: "Долго искал настоящий улун, и наконец нашёл. Минеральный, насыщенный, с долгим послевкусием. Прошёл квиз — рекомендации точно в цель. Программа лояльности приятный бонус, уже накопил на следующую покупку.",
+              },
+              {
+                img: IMG.reviewer3,
+                name: "Мария Л.",
+                city: "Казань",
+                date: "28 апреля 2024",
+                rating: 5,
+                tea: "Подарочный набор «Лунная коллекция»",
+                text: "Подарила набор маме на день рождения — она ценительница чая. Деревянная шкатулка просто произведение искусства, гравировка идеальная. Мама плакала от счастья. Спасибо вам за внимание к деталям!",
+              },
+            ].map((r, i) => (
+              <div key={i} className="bg-cream p-6 sm:p-7 relative card-hover">
+                {/* Кавычки */}
+                <span className="absolute -top-3 left-5 font-display text-7xl text-gold leading-none select-none">"</span>
+
+                {/* Рейтинг */}
+                <div className="flex gap-0.5 mb-4 mt-2">
+                  {[1,2,3,4,5].map(s => (
+                    <Icon key={s} name="Star" size={13} className={s <= r.rating ? "text-gold" : "text-border"} />
+                  ))}
+                </div>
+
+                {/* Текст */}
+                <p className="font-body text-xs sm:text-sm text-tea-dark leading-relaxed mb-5">
+                  {r.text}
+                </p>
+
+                {/* Купленный чай */}
+                <div className="bg-gold/10 border-l-2 border-gold px-3 py-2 mb-5">
+                  <p className="font-body text-[9px] tracking-widest uppercase text-gold mb-0.5">Заказ</p>
+                  <p className="font-body text-xs text-tea-dark">{r.tea}</p>
+                </div>
+
+                {/* Автор */}
+                <div className="flex items-center gap-3 pt-4 border-t border-gold/20">
+                  <img src={r.img} alt={r.name} className="w-12 h-12 rounded-full object-cover border-2 border-gold/50" />
+                  <div>
+                    <p className="font-display text-base text-tea-dark leading-tight">{r.name}</p>
+                    <p className="font-body text-[10px] text-muted-foreground tracking-wider">{r.city} · {r.date}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Метрики */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 pt-10 border-t border-cream/10">
+            {[
+              { num: "12 000+", label: "Довольных клиентов" },
+              { num: "4.9 / 5", label: "Средний рейтинг" },
+              { num: "98%", label: "Возвращаются снова" },
+              { num: "47", label: "Сортов в каталоге" },
+            ].map((m, i) => (
+              <div key={i} className="text-center">
+                <p className="font-display text-3xl sm:text-4xl text-gold leading-tight">{m.num}</p>
+                <p className="font-body text-[10px] sm:text-xs text-cream/50 tracking-widest uppercase mt-1">{m.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
