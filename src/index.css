@@ -397,6 +397,38 @@
   align-items: flex-start;
 }
 
+.feedback-fab-label {
+  display: inline;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 640px) {
+  .feedback-fab {
+    left: 0.75rem;
+    bottom: 5.5rem;
+    gap: 0.5rem;
+  }
+  .feedback-fab .fab-btn {
+    width: 42px;
+    height: 42px;
+    padding: 0 !important;
+    justify-content: center;
+    gap: 0 !important;
+  }
+  .feedback-fab-label {
+    display: none;
+  }
+  .modal-box {
+    margin: 0.5rem !important;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .filter-btn {
+    padding: 6px 14px;
+    font-size: 0.6rem;
+  }
+}
+
 /* Изображение чая */
 .tea-img {
   width: 100%;
@@ -431,6 +463,16 @@
 }
 
 /* Профиль — аватар */
+/* Slide-in для мобильных фильтров */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 /* Опции квиза */
 .quiz-option {
   border: 1px solid rgba(184, 148, 42, 0.25);

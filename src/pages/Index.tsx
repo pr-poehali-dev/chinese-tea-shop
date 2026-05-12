@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Icon from "@/components/ui/icon";
 import TeaQuiz from "@/components/TeaQuiz";
+import CatalogFilters, { FilterState } from "@/components/CatalogFilters";
 
 const IMG = {
   hero: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/03046ac1-b07a-4e4d-af17-78c1d413f3b4.jpg",
@@ -11,18 +12,18 @@ const IMG = {
 };
 
 const teas = [
-  { id: 1, name: "Шу Пуэр «Золотой Дворец»", origin: "Юньнань, Китай", year: "2018", price: 2800, weight: "357 г", tag: "Пуэр", description: "Глубокий землистый вкус с нотами чернослива и дерева. Блин выдержан 6 лет в специальных хранилищах.", img: IMG.puer },
-  { id: 2, name: "ГАБА Улун «Лунная Роса»", origin: "Тайвань", year: "2024", price: 3400, weight: "100 г", tag: "ГАБА", description: "Ферментирован в азоте, богат ГАМК. Карамельный вкус с фруктовыми нотами и долгим послевкусием.", img: IMG.gaba },
-  { id: 3, name: "Да Хун Пао «Утёс»", origin: "Уишань, Фуцзянь", year: "2023", price: 4200, weight: "50 г", tag: "Улун", description: "Легендарный красный халат. Сильная обжарка, минеральные тона скал, орхидеевый аромат.", img: null },
-  { id: 4, name: "Белый Пион «Серебро»", origin: "Фуцзянь, Китай", year: "2024", price: 1900, weight: "100 г", tag: "Белый", description: "Молодые побеги, минимальная обработка. Цветочный аромат, медовая сладость, бархатистость.", img: IMG.white },
-  { id: 5, name: "Дянь Хун «Золотые Спирали»", origin: "Юньнань, Китай", year: "2024", price: 2200, weight: "100 г", tag: "Красный", description: "Красный чай из золотых почек. Шоколад, мёд, солод — роскошный утренний чай.", img: null },
-  { id: 6, name: "Те Гуань Инь «Железная Богиня»", origin: "Аньси, Фуцзянь", year: "2024", price: 1600, weight: "100 г", tag: "Улун", description: "Классический улун с цветочно-молочным ароматом. Раскрывается при многократных заварках.", img: null },
-  { id: 7, name: "Шэн Пуэр «Горный туман»", origin: "Юньнань, Китай", year: "2020", price: 3100, weight: "200 г", tag: "Пуэр", description: "Сырой пуэр с высокогорных плантаций. Терпкость, зелень, долгое сладкое послевкусие.", img: null },
-  { id: 8, name: "Чай Хуа «Жасминовая жемчужина»", origin: "Фуцзянь, Китай", year: "2024", price: 980, weight: "100 г", tag: "Зелёный", description: "Зелёный чай, ароматизированный живыми цветами жасмина. Свежесть, нежность, умиротворение.", img: null },
-  { id: 9, name: "Ли Шань Улун «Ледяная вершина»", origin: "Тайвань, 2600м", year: "2024", price: 5200, weight: "75 г", tag: "Улун", description: "Высокогорный улун с молочным ароматом и медовой сладостью. Каждый лист — ручной сбор.", img: null },
-  { id: 10, name: "Хэй Ча «Тёмная скала»", origin: "Хунань, Китай", year: "2016", price: 2600, weight: "250 г", tag: "Тёмный", description: "Выдержанный хуаньский тёмный чай. Мягкий, древесный, с земляными нотами — для ценителей.", img: null },
-  { id: 11, name: "Сян Пянь «Осенний листопад»", origin: "Анхой, Китай", year: "2024", price: 1400, weight: "100 г", tag: "Красный", description: "Красный чай Кимун с уникальным «орхидейным» ароматом. Мягкий, без вяжущего привкуса.", img: null },
-  { id: 12, name: "Лун Цзин «Колодец дракона»", origin: "Ханчжоу, Чжэцзян", year: "2024", price: 2900, weight: "50 г", tag: "Зелёный", description: "Легендарный императорский зелёный чай. Плоские листья, ореховый аромат, светлый настой.", img: null },
+  { id: 1, name: "Шу Пуэр «Золотой Дворец»", origin: "Юньнань, Китай", country: "Китай", year: "2018", price: 2800, weight: "357 г", tag: "Пуэр", effects: ["Расслабление", "Пищеварение"], description: "Глубокий землистый вкус с нотами чернослива и дерева. Блин выдержан 6 лет в специальных хранилищах.", img: IMG.puer },
+  { id: 2, name: "ГАБА Улун «Лунная Роса»", origin: "Тайвань", country: "Тайвань", year: "2024", price: 3400, weight: "100 г", tag: "ГАБА", effects: ["Спокойствие", "Сон"], description: "Ферментирован в азоте, богат ГАМК. Карамельный вкус с фруктовыми нотами и долгим послевкусием.", img: IMG.gaba },
+  { id: 3, name: "Да Хун Пао «Утёс»", origin: "Уишань, Фуцзянь", country: "Китай", year: "2023", price: 4200, weight: "50 г", tag: "Улун", effects: ["Бодрость", "Концентрация"], description: "Легендарный красный халат. Сильная обжарка, минеральные тона скал, орхидеевый аромат.", img: null },
+  { id: 4, name: "Белый Пион «Серебро»", origin: "Фуцзянь, Китай", country: "Китай", year: "2024", price: 1900, weight: "100 г", tag: "Белый", effects: ["Спокойствие", "Иммунитет"], description: "Молодые побеги, минимальная обработка. Цветочный аромат, медовая сладость, бархатистость.", img: IMG.white },
+  { id: 5, name: "Дянь Хун «Золотые Спирали»", origin: "Юньнань, Китай", country: "Китай", year: "2024", price: 2200, weight: "100 г", tag: "Красный", effects: ["Бодрость", "Согревание"], description: "Красный чай из золотых почек. Шоколад, мёд, солод — роскошный утренний чай.", img: null },
+  { id: 6, name: "Те Гуань Инь «Железная Богиня»", origin: "Аньси, Фуцзянь", country: "Китай", year: "2024", price: 1600, weight: "100 г", tag: "Улун", effects: ["Концентрация", "Спокойствие"], description: "Классический улун с цветочно-молочным ароматом. Раскрывается при многократных заварках.", img: null },
+  { id: 7, name: "Шэн Пуэр «Горный туман»", origin: "Юньнань, Китай", country: "Китай", year: "2020", price: 3100, weight: "200 г", tag: "Пуэр", effects: ["Бодрость", "Концентрация"], description: "Сырой пуэр с высокогорных плантаций. Терпкость, зелень, долгое сладкое послевкусие.", img: null },
+  { id: 8, name: "Чай Хуа «Жасминовая жемчужина»", origin: "Фуцзянь, Китай", country: "Китай", year: "2024", price: 980, weight: "100 г", tag: "Зелёный", effects: ["Спокойствие", "Иммунитет"], description: "Зелёный чай, ароматизированный живыми цветами жасмина. Свежесть, нежность, умиротворение.", img: null },
+  { id: 9, name: "Ли Шань Улун «Ледяная вершина»", origin: "Тайвань, 2600м", country: "Тайвань", year: "2024", price: 5200, weight: "75 г", tag: "Улун", effects: ["Концентрация", "Бодрость"], description: "Высокогорный улун с молочным ароматом и медовой сладостью. Каждый лист — ручной сбор.", img: null },
+  { id: 10, name: "Хэй Ча «Тёмная скала»", origin: "Хунань, Китай", country: "Китай", year: "2016", price: 2600, weight: "250 г", tag: "Тёмный", effects: ["Пищеварение", "Расслабление"], description: "Выдержанный хуаньский тёмный чай. Мягкий, древесный, с земляными нотами — для ценителей.", img: null },
+  { id: 11, name: "Сян Пянь «Осенний листопад»", origin: "Анхой, Китай", country: "Китай", year: "2024", price: 1400, weight: "100 г", tag: "Красный", effects: ["Бодрость", "Согревание"], description: "Красный чай Кимун с уникальным «орхидейным» ароматом. Мягкий, без вяжущего привкуса.", img: null },
+  { id: 12, name: "Лун Цзин «Колодец дракона»", origin: "Ханчжоу, Чжэцзян", country: "Китай", year: "2024", price: 2900, weight: "50 г", tag: "Зелёный", effects: ["Концентрация", "Иммунитет"], description: "Легендарный императорский зелёный чай. Плоские листья, ореховый аромат, светлый настой.", img: null },
 ];
 
 const categories = ["Все", "Пуэр", "Улун", "ГАБА", "Белый", "Красный", "Зелёный", "Тёмный"];
@@ -76,6 +77,13 @@ export default function Index() {
   const [callbackSent, setCallbackSent] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const PRICE_LIMIT = { min: 900, max: 5500 };
+  const [filters, setFilters] = useState<FilterState>({
+    types: [], countries: [], effects: [],
+    priceMin: PRICE_LIMIT.min, priceMax: PRICE_LIMIT.max,
+    search: "", sort: "popular",
+  });
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -132,7 +140,30 @@ export default function Index() {
     setTimeout(() => { setFeedbackSent(false); closeModal(); }, 2500);
   };
 
-  const filteredTeas = activeCategory === "Все" ? teas : teas.filter(t => t.tag === activeCategory);
+  const allCountries = useMemo(() => Array.from(new Set(teas.map(t => t.country))), []);
+  const allEffects = useMemo(() => Array.from(new Set(teas.flatMap(t => t.effects))), []);
+
+  const filteredTeas = useMemo(() => {
+    let result = teas;
+
+    if (activeCategory !== "Все") result = result.filter(t => t.tag === activeCategory);
+    if (filters.types.length) result = result.filter(t => filters.types.includes(t.tag));
+    if (filters.countries.length) result = result.filter(t => filters.countries.includes(t.country));
+    if (filters.effects.length) result = result.filter(t => t.effects.some(e => filters.effects.includes(e)));
+    result = result.filter(t => t.price >= filters.priceMin && t.price <= filters.priceMax);
+    if (filters.search.trim()) {
+      const q = filters.search.toLowerCase();
+      result = result.filter(t => t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q) || t.origin.toLowerCase().includes(q));
+    }
+
+    switch (filters.sort) {
+      case "price_asc": result = [...result].sort((a, b) => a.price - b.price); break;
+      case "price_desc": result = [...result].sort((a, b) => b.price - a.price); break;
+      case "name": result = [...result].sort((a, b) => a.name.localeCompare(b.name, "ru")); break;
+      case "year": result = [...result].sort((a, b) => b.year.localeCompare(a.year)); break;
+    }
+    return result;
+  }, [activeCategory, filters]);
 
   return (
     <div className="min-h-screen bg-cream font-body">
@@ -198,6 +229,13 @@ export default function Index() {
 
         {menuOpen && (
           <div className="md:hidden bg-cream border-t border-gold/20 px-6 py-4 flex flex-col gap-4">
+            <button
+              onClick={() => { setQuizOpen(true); setMenuOpen(false); }}
+              className="nav-link flex items-center gap-2 text-gold"
+            >
+              <Icon name="Sparkles" size={11} />
+              Подобрать чай
+            </button>
             {["Каталог", "Подарки", "О нас", "Доставка", "Контакты"].map(item => (
               <a key={item} href={`#${item.toLowerCase()}`} className="nav-link" onClick={() => setMenuOpen(false)}>{item}</a>
             ))}
@@ -215,24 +253,24 @@ export default function Index() {
             <p className="animate-fade-in-up delay-100 font-body text-[10px] tracking-[0.3em] uppercase text-gold mb-4">
               Магазин редких чаёв
             </p>
-            <h1 className="animate-fade-in-up delay-200 font-display text-6xl md:text-7xl lg:text-8xl font-light text-cream leading-none mb-6">
+            <h1 className="animate-fade-in-up delay-200 font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light text-cream leading-none mb-6">
               Искусство<br />
               <em className="gold-shimmer not-italic">чайного</em><br />
               пути
             </h1>
-            <p className="animate-fade-in-up delay-300 font-body text-sm text-cream/75 leading-relaxed mb-10 max-w-sm">
+            <p className="animate-fade-in-up delay-300 font-body text-xs sm:text-sm text-cream/75 leading-relaxed mb-8 sm:mb-10 max-w-sm">
               Отборные чаи из Китая, Тайваня и Японии. Прямые поставки с плантаций, выдержанные пуэры, редкие улуны.
             </p>
-            <div className="animate-fade-in-up delay-400 flex flex-wrap gap-4">
+            <div className="animate-fade-in-up delay-400 flex flex-wrap gap-3 sm:gap-4">
               <button
-                className="btn-gold btn-glow px-8 py-3.5 flex items-center gap-2"
+                className="btn-gold btn-glow px-6 sm:px-8 py-3 sm:py-3.5 flex items-center gap-2"
                 onClick={() => setQuizOpen(true)}
               >
                 <Icon name="Sparkles" size={13} />
                 Подобрать чай
               </button>
               <button
-                className="btn-outline-gold btn-glow px-8 py-3.5 border-cream/50 text-cream"
+                className="btn-outline-gold btn-glow px-6 sm:px-8 py-3 sm:py-3.5 border-cream/50 text-cream"
                 onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}
               >
                 В каталог
@@ -265,19 +303,19 @@ export default function Index() {
       </section>
 
       {/* ═══ КАТАЛОГ ═══ */}
-      <section id="catalog" className="py-20 bg-pattern">
-        <div className="max-w-7xl mx-auto px-6">
+      <section id="catalog" className="py-14 sm:py-20 bg-pattern">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Наш ассортимент</p>
-            <h2 className="font-display text-5xl font-light text-tea-dark">Коллекция чаёв</h2>
+            <h2 className="font-display text-4xl sm:text-5xl font-light text-tea-dark">Коллекция чаёв</h2>
             <div className="divider-gold" />
             <p className="font-body text-sm text-muted-foreground max-w-md mx-auto">
               Каждый чай — это история места, сезона и мастера. Мы отбираем только лучшее.
             </p>
           </div>
 
-          {/* Фильтры с золотым свечением */}
-          <div className="flex flex-wrap justify-center gap-2 mb-10">
+          {/* Категории-чипсы */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8 overflow-x-auto">
             {categories.map(cat => (
               <button
                 key={cat}
@@ -289,60 +327,102 @@ export default function Index() {
             ))}
           </div>
 
-          {/* Сетка */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredTeas.map(tea => (
-              <div key={tea.id} className="tea-card card-hover group">
-                <div className="relative h-52 overflow-hidden bg-gradient-to-br from-tea-mid to-tea-dark">
-                  {tea.img ? (
-                    <img src={tea.img} alt={tea.name} className="tea-img" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-7xl opacity-25 group-hover:opacity-40 group-hover:scale-110 transition-all duration-500">
-                        {TEA_EMOJI[tea.tag] ?? "🍵"}
-                      </span>
-                    </div>
-                  )}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-gold text-cream text-[9px] tracking-widest uppercase px-2 py-1 font-body">
-                      {tea.tag}
-                    </span>
-                  </div>
-                  <div className="absolute top-3 right-3">
-                    <span className="border border-cream/30 text-cream text-[9px] tracking-wider uppercase px-2 py-1 font-body">
-                      {tea.year}
-                    </span>
-                  </div>
-                </div>
+          {/* Layout: фильтры + сетка */}
+          <div className="flex gap-8">
+            <CatalogFilters
+              filters={filters}
+              setFilters={setFilters}
+              open={filtersOpen}
+              onClose={() => setFiltersOpen(false)}
+              resultCount={filteredTeas.length}
+              types={categories.filter(c => c !== "Все")}
+              countries={allCountries}
+              effects={allEffects}
+              priceLimit={PRICE_LIMIT}
+            />
 
-                <div className="p-5">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1 pr-2">
-                      <h3 className="font-display text-xl font-medium text-tea-dark leading-tight">{tea.name}</h3>
-                      <p className="font-body text-[10px] text-gold tracking-wider uppercase mt-1">{tea.origin}</p>
-                    </div>
-                    <span className="font-body text-[9px] text-muted-foreground border border-border px-2 py-1 whitespace-nowrap shrink-0">
-                      {tea.weight}
-                    </span>
-                  </div>
-                  <p className="font-body text-xs text-muted-foreground leading-relaxed mb-4">{tea.description}</p>
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="font-display text-2xl text-tea-dark">{tea.price.toLocaleString()} ₽</span>
-                    <button
-                      className="btn-gold btn-glow px-5 py-2 flex items-center gap-2"
-                      onClick={() => addToCart(tea.id)}
-                    >
-                      <Icon name="ShoppingBag" size={12} />
-                      В корзину
-                    </button>
-                  </div>
-                </div>
+            <div className="flex-1 min-w-0">
+              {/* Топбар: количество + кнопка фильтров для мобильных */}
+              <div className="flex items-center justify-between mb-6">
+                <p className="font-body text-xs text-muted-foreground">
+                  Найдено: <span className="text-tea-dark font-medium">{filteredTeas.length}</span>
+                </p>
+                <button
+                  onClick={() => setFiltersOpen(true)}
+                  className="lg:hidden btn-outline-gold btn-glow px-4 py-2 flex items-center gap-2"
+                >
+                  <Icon name="SlidersHorizontal" size={12} />
+                  Фильтры
+                </button>
               </div>
-            ))}
-          </div>
 
-          <div className="text-center mt-10">
-            <button className="btn-outline-gold btn-glow px-10 py-3.5">Весь каталог</button>
+              {/* Сетка */}
+              {filteredTeas.length === 0 ? (
+                <div className="text-center py-16">
+                  <span className="text-5xl block mb-4">🔍</span>
+                  <p className="font-display text-2xl text-tea-dark mb-2">Ничего не найдено</p>
+                  <p className="font-body text-xs text-muted-foreground mb-6">Попробуйте изменить фильтры</p>
+                  <button
+                    onClick={() => {
+                      setActiveCategory("Все");
+                      setFilters({ types: [], countries: [], effects: [], priceMin: PRICE_LIMIT.min, priceMax: PRICE_LIMIT.max, search: "", sort: "popular" });
+                    }}
+                    className="btn-outline-gold btn-glow px-6 py-2.5"
+                  >
+                    Сбросить фильтры
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {filteredTeas.map(tea => (
+                    <div key={tea.id} className="tea-card card-hover group">
+                      <div className="relative h-48 sm:h-52 overflow-hidden bg-gradient-to-br from-tea-mid to-tea-dark">
+                        {tea.img ? (
+                          <img src={tea.img} alt={tea.name} className="tea-img" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-7xl opacity-25 group-hover:opacity-40 group-hover:scale-110 transition-all duration-500">
+                              {TEA_EMOJI[tea.tag] ?? "🍵"}
+                            </span>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3">
+                          <span className="bg-gold text-cream text-[9px] tracking-widest uppercase px-2 py-1 font-body">{tea.tag}</span>
+                        </div>
+                        <div className="absolute top-3 right-3">
+                          <span className="border border-cream/30 text-cream text-[9px] tracking-wider uppercase px-2 py-1 font-body">{tea.year}</span>
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1 pr-2">
+                            <h3 className="font-display text-xl font-medium text-tea-dark leading-tight">{tea.name}</h3>
+                            <p className="font-body text-[10px] text-gold tracking-wider uppercase mt-1">{tea.origin}</p>
+                          </div>
+                          <span className="font-body text-[9px] text-muted-foreground border border-border px-2 py-1 whitespace-nowrap shrink-0">{tea.weight}</span>
+                        </div>
+                        <p className="font-body text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-2">{tea.description}</p>
+                        <div className="flex flex-wrap gap-1 mb-3">
+                          {tea.effects.slice(0, 2).map(ef => (
+                            <span key={ef} className="font-body text-[9px] text-gold border border-gold/30 px-1.5 py-0.5">{ef}</span>
+                          ))}
+                        </div>
+                        <div className="flex items-center justify-between pt-3 border-t border-border">
+                          <span className="font-display text-2xl text-tea-dark">{tea.price.toLocaleString()} ₽</span>
+                          <button
+                            className="btn-gold btn-glow px-4 sm:px-5 py-2 flex items-center gap-2"
+                            onClick={() => addToCart(tea.id)}
+                          >
+                            <Icon name="ShoppingBag" size={12} />
+                            В корзину
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -353,7 +433,7 @@ export default function Index() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Особый повод</p>
-              <h2 className="font-display text-5xl font-light text-cream mb-4">Подарочные<br />наборы</h2>
+              <h2 className="font-display text-4xl sm:text-5xl font-light text-cream mb-4">Подарочные<br />наборы</h2>
               <div className="w-10 h-px bg-gold mb-6" />
               <p className="font-body text-sm text-cream/60 leading-relaxed mb-8 max-w-sm">
                 Деревянные шкатулки ручной работы с отборными чаями. Идеальный подарок для тех, кто ценит красоту и вкус. Гравировка по желанию.
@@ -394,7 +474,7 @@ export default function Index() {
         </div>
         <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
           <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-6">Философия</p>
-          <blockquote className="font-display text-3xl md:text-4xl text-cream font-light leading-relaxed mb-6">
+          <blockquote className="font-display text-2xl sm:text-3xl md:text-4xl text-cream font-light leading-relaxed mb-6 px-2">
             «В каждой чашке — история горы, дождя и рук мастера. Чай — это медитация в действии»
           </blockquote>
           <div className="divider-gold" />
@@ -408,7 +488,7 @@ export default function Index() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Логистика</p>
-              <h2 className="font-display text-5xl font-light text-tea-dark mb-4">Доставка<br />и оплата</h2>
+              <h2 className="font-display text-4xl sm:text-5xl font-light text-tea-dark mb-4">Доставка<br />и оплата</h2>
               <div className="w-10 h-px bg-gold mb-6" />
               <div className="space-y-6">
                 {[
@@ -462,7 +542,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-12">
             <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Связаться</p>
-            <h2 className="font-display text-5xl font-light text-tea-dark">Обратная связь</h2>
+            <h2 className="font-display text-4xl sm:text-5xl font-light text-tea-dark">Обратная связь</h2>
             <div className="divider-gold" />
           </div>
           <div className="max-w-2xl mx-auto">
@@ -540,19 +620,19 @@ export default function Index() {
       <div className="feedback-fab">
         <button
           onClick={() => setModal("callback")}
-          className="flex items-center gap-2 bg-tea-dark border border-gold/40 text-cream px-4 py-2.5 btn-glow text-[10px] tracking-wider uppercase font-body hover:border-gold transition-colors"
+          className="fab-btn flex items-center gap-2 bg-tea-dark border border-gold/40 text-cream px-4 py-2.5 btn-glow text-[10px] tracking-wider uppercase font-body hover:border-gold transition-colors"
           title="Обратный звонок"
         >
-          <Icon name="Phone" size={13} className="text-gold" />
-          Обратный звонок
+          <Icon name="Phone" size={14} className="text-gold" />
+          <span className="feedback-fab-label">Обратный звонок</span>
         </button>
         <button
           onClick={() => setModal("feedback")}
-          className="flex items-center gap-2 bg-tea-dark border border-gold/40 text-cream px-4 py-2.5 btn-glow text-[10px] tracking-wider uppercase font-body hover:border-gold transition-colors"
+          className="fab-btn flex items-center gap-2 bg-tea-dark border border-gold/40 text-cream px-4 py-2.5 btn-glow text-[10px] tracking-wider uppercase font-body hover:border-gold transition-colors"
           title="Написать нам"
         >
-          <Icon name="MessageSquare" size={13} className="text-gold" />
-          Написать нам
+          <Icon name="MessageSquare" size={14} className="text-gold" />
+          <span className="feedback-fab-label">Написать нам</span>
         </button>
       </div>
 
@@ -569,7 +649,7 @@ export default function Index() {
       </button>
 
       {chatOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white border border-border shadow-2xl flex flex-col" style={{ maxHeight: 420 }}>
+        <div className="fixed bottom-24 right-3 left-3 sm:left-auto sm:right-6 z-50 sm:w-80 bg-white border border-border shadow-2xl flex flex-col" style={{ maxHeight: 420 }}>
           <div className="bg-tea-dark px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-base">🍵</span>
