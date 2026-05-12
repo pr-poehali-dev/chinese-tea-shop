@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import Icon from "@/components/ui/icon";
 import TeaQuiz from "@/components/TeaQuiz";
+import TeaDetail from "@/components/TeaDetail";
 import CatalogFilters, { FilterState } from "@/components/CatalogFilters";
 
 const IMG = {
@@ -41,10 +42,19 @@ const benefits = [
 
 type ModalType = "account" | "callback" | "feedback" | "cart" | null;
 
+interface BonusEntry {
+  date: string;
+  reason: string;
+  amount: number;
+}
+
 interface User {
   name: string;
   email: string;
   orders: { id: string; date: string; items: string; total: number; status: string }[];
+  bonuses: number;
+  totalSpent: number;
+  bonusHistory: BonusEntry[];
 }
 
 const DEMO_USER: User = {
@@ -55,7 +65,31 @@ const DEMO_USER: User = {
     { id: "#1031", date: "18.04.2024", items: "Да Хун Пао «Утёс»", total: 4200, status: "Доставлен" },
     { id: "#1019", date: "02.04.2024", items: "Лун Цзин, ГАБА Улун", total: 6300, status: "Доставлен" },
   ],
+  bonuses: 1525,
+  totalSpent: 15200,
+  bonusHistory: [
+    { date: "05.05.2024", reason: "Начисление за заказ #1042", amount: 470 },
+    { date: "18.04.2024", reason: "Начисление за заказ #1031", amount: 420 },
+    { date: "02.04.2024", reason: "Начисление за заказ #1019", amount: 630 },
+    { date: "20.03.2024", reason: "Бонус за день рождения", amount: 500 },
+    { date: "15.03.2024", reason: "Списание при оплате заказа", amount: -495 },
+  ],
 };
+
+const LOYALTY_LEVELS = [
+  { name: "Знакомство",  min: 0,     percent: 5,  color: "#B8942A" },
+  { name: "Любитель",    min: 5000,  percent: 7,  color: "#D4AF37" },
+  { name: "Ценитель",    min: 15000, percent: 10, color: "#E5C547" },
+  { name: "Мастер",      min: 50000, percent: 15, color: "#F5E078" },
+];
+
+function getCurrentLevel(spent: number) {
+  return [...LOYALTY_LEVELS].reverse().find(l => spent >= l.min) ?? LOYALTY_LEVELS[0];
+}
+
+function getNextLevel(spent: number) {
+  return LOYALTY_LEVELS.find(l => spent < l.min) ?? null;
+}
 
 export default function Index() {
   const [activeCategory, setActiveCategory] = useState("Все");
@@ -64,7 +98,7 @@ export default function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [modal, setModal] = useState<ModalType>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [accountTab, setAccountTab] = useState<"profile" | "orders" | "favourites">("profile");
+  const [accountTab, setAccountTab] = useState<"profile" | "orders" | "bonuses" | "favourites">("profile");
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
@@ -78,6 +112,7 @@ export default function Index() {
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [quizOpen, setQuizOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [detailId, setDetailId] = useState<number | null>(null);
   const PRICE_LIMIT = { min: 900, max: 5500 };
   const [filters, setFilters] = useState<FilterState>({
     types: [], countries: [], effects: [],
@@ -302,6 +337,41 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ═══ ПРОГРАММА ЛОЯЛЬНОСТИ ═══ */}
+      <section className="py-12 sm:py-16 bg-cream border-y border-gold/15">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-8 items-center">
+            <div>
+              <p className="font-body text-[9px] tracking-[0.3em] uppercase text-gold mb-3">Лунный клуб</p>
+              <h2 className="font-display text-3xl sm:text-4xl font-light text-tea-dark mb-3">Программа<br />лояльности</h2>
+              <p className="font-body text-xs text-muted-foreground leading-relaxed mb-4">
+                Возвращайте до 15% бонусами с каждой покупки и оплачивайте ими до 30% следующего заказа.
+              </p>
+              <button
+                onClick={() => { setModal("account"); setAccountTab("bonuses"); }}
+                className="btn-gold btn-glow px-6 py-2.5 inline-flex items-center gap-2"
+              >
+                <Icon name="Sparkles" size={12} />
+                {isLoggedIn ? "Мои бонусы" : "Стать участником"}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {LOYALTY_LEVELS.map((l, i) => (
+                <div key={l.name} className="border border-gold/20 bg-white p-4 text-center">
+                  <div className="w-10 h-10 mx-auto mb-2 flex items-center justify-center border border-gold/40">
+                    <span className="font-display text-base text-gold">{i + 1}</span>
+                  </div>
+                  <p className="font-body text-[10px] tracking-widest uppercase text-muted-foreground">{l.name}</p>
+                  <p className="font-display text-2xl text-tea-dark leading-tight mt-1">{l.percent}%</p>
+                  <p className="font-body text-[9px] text-muted-foreground mt-1">от {l.min.toLocaleString()} ₽</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ═══ КАТАЛОГ ═══ */}
       <section id="catalog" className="py-14 sm:py-20 bg-pattern">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -376,7 +446,10 @@ export default function Index() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                   {filteredTeas.map(tea => (
                     <div key={tea.id} className="tea-card card-hover group">
-                      <div className="relative h-48 sm:h-52 overflow-hidden bg-gradient-to-br from-tea-mid to-tea-dark">
+                      <div
+                        className="relative h-48 sm:h-52 overflow-hidden bg-gradient-to-br from-tea-mid to-tea-dark cursor-pointer"
+                        onClick={() => setDetailId(tea.id)}
+                      >
                         {tea.img ? (
                           <img src={tea.img} alt={tea.name} className="tea-img" />
                         ) : (
@@ -392,11 +465,14 @@ export default function Index() {
                         <div className="absolute top-3 right-3">
                           <span className="border border-cream/30 text-cream text-[9px] tracking-wider uppercase px-2 py-1 font-body">{tea.year}</span>
                         </div>
+                        <div className="absolute inset-0 bg-tea-dark/0 group-hover:bg-tea-dark/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <span className="bg-gold text-cream text-[10px] tracking-widest uppercase px-3 py-1.5 font-body">Подробнее</span>
+                        </div>
                       </div>
                       <div className="p-5">
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex justify-between items-start mb-2 cursor-pointer" onClick={() => setDetailId(tea.id)}>
                           <div className="flex-1 pr-2">
-                            <h3 className="font-display text-xl font-medium text-tea-dark leading-tight">{tea.name}</h3>
+                            <h3 className="font-display text-xl font-medium text-tea-dark leading-tight hover:text-gold transition-colors">{tea.name}</h3>
                             <p className="font-body text-[10px] text-gold tracking-wider uppercase mt-1">{tea.origin}</p>
                           </div>
                           <span className="font-body text-[9px] text-muted-foreground border border-border px-2 py-1 whitespace-nowrap shrink-0">{tea.weight}</span>
@@ -700,7 +776,16 @@ export default function Index() {
                   <div className="avatar-gold">{isLoggedIn ? DEMO_USER.name[0] : "?"}</div>
                   <div>
                     <p className="font-display text-xl text-cream">{isLoggedIn ? DEMO_USER.name : "Личный кабинет"}</p>
-                    {isLoggedIn && <p className="font-body text-[10px] text-gold">{DEMO_USER.email}</p>}
+                    {isLoggedIn ? (
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="font-body text-[10px] text-gold">{DEMO_USER.email}</span>
+                        <span className="font-body text-[10px] text-cream/30">·</span>
+                        <span className="font-body text-[10px] text-gold flex items-center gap-1">
+                          <Icon name="Coins" size={10} />
+                          {DEMO_USER.bonuses.toLocaleString()} баллов
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
                 <button onClick={closeModal} className="text-cream/50 hover:text-cream transition-colors">
@@ -710,14 +795,14 @@ export default function Index() {
 
               {isLoggedIn ? (
                 <>
-                  <div className="flex border-b border-border">
-                    {(["profile", "orders", "favourites"] as const).map(tab => (
+                  <div className="flex border-b border-border overflow-x-auto">
+                    {(["profile", "orders", "bonuses", "favourites"] as const).map(tab => (
                       <button
                         key={tab}
                         onClick={() => setAccountTab(tab)}
-                        className={`tab-btn flex-1 ${accountTab === tab ? "active" : ""}`}
+                        className={`tab-btn flex-1 whitespace-nowrap ${accountTab === tab ? "active" : ""}`}
                       >
-                        {tab === "profile" ? "Профиль" : tab === "orders" ? "Заказы" : "Избранное"}
+                        {tab === "profile" ? "Профиль" : tab === "orders" ? "Заказы" : tab === "bonuses" ? "Бонусы" : "Избранное"}
                       </button>
                     ))}
                   </div>
@@ -759,6 +844,93 @@ export default function Index() {
                         ))}
                       </div>
                     )}
+                    {accountTab === "bonuses" && (() => {
+                      const level = getCurrentLevel(DEMO_USER.totalSpent);
+                      const next = getNextLevel(DEMO_USER.totalSpent);
+                      const progress = next ? ((DEMO_USER.totalSpent - level.min) / (next.min - level.min)) * 100 : 100;
+                      return (
+                        <div className="space-y-4">
+                          {/* Карта баллов */}
+                          <div className="relative bg-gradient-to-br from-tea-dark to-tea-mid p-5 overflow-hidden">
+                            <div className="absolute -top-6 -right-6 text-[10rem] opacity-5 font-display text-gold leading-none">茶</div>
+                            <p className="font-body text-[10px] tracking-[0.2em] uppercase text-gold mb-1">Ваш баланс</p>
+                            <p className="font-display text-5xl text-cream mb-1 leading-none">{DEMO_USER.bonuses.toLocaleString()}</p>
+                            <p className="font-body text-[10px] text-cream/50 tracking-wider">бонусов · 1 балл = 1 ₽</p>
+
+                            <div className="mt-5 pt-4 border-t border-cream/10">
+                              <div className="flex items-center justify-between mb-2">
+                                <div>
+                                  <p className="font-body text-[10px] tracking-widest uppercase text-gold">Уровень</p>
+                                  <p className="font-display text-xl text-cream leading-tight">{level.name}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-body text-[10px] tracking-widest uppercase text-gold">Кэшбэк</p>
+                                  <p className="font-display text-xl text-cream leading-tight">{level.percent}%</p>
+                                </div>
+                              </div>
+                              {next && (
+                                <>
+                                  <div className="relative h-1.5 bg-cream/10 rounded-full overflow-hidden mt-3">
+                                    <div
+                                      className="absolute inset-y-0 left-0 bg-gold rounded-full transition-all"
+                                      style={{ width: `${progress}%` }}
+                                    />
+                                  </div>
+                                  <p className="font-body text-[10px] text-cream/50 mt-2">
+                                    До «{next.name}» ({next.percent}% кэшбэк): ещё {(next.min - DEMO_USER.totalSpent).toLocaleString()} ₽
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Уровни */}
+                          <div>
+                            <p className="font-body text-[10px] tracking-widest uppercase text-muted-foreground mb-2">Уровни программы</p>
+                            <div className="grid grid-cols-4 gap-2">
+                              {LOYALTY_LEVELS.map(l => (
+                                <div
+                                  key={l.name}
+                                  className={`text-center p-2 border ${
+                                    l.name === level.name ? "border-gold bg-gold/10" : "border-border bg-white"
+                                  }`}
+                                >
+                                  <p className="font-body text-[8px] tracking-widest uppercase text-muted-foreground">{l.name}</p>
+                                  <p className="font-display text-base text-tea-dark leading-tight mt-1">{l.percent}%</p>
+                                  <p className="font-body text-[8px] text-muted-foreground">от {l.min.toLocaleString()} ₽</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* История начислений */}
+                          <div>
+                            <p className="font-body text-[10px] tracking-widest uppercase text-muted-foreground mb-2">История</p>
+                            <div className="space-y-2 max-h-48 overflow-y-auto">
+                              {DEMO_USER.bonusHistory.map((b, i) => (
+                                <div key={i} className="flex justify-between items-center border-b border-border pb-2">
+                                  <div>
+                                    <p className="font-body text-xs text-tea-dark">{b.reason}</p>
+                                    <p className="font-body text-[10px] text-muted-foreground">{b.date}</p>
+                                  </div>
+                                  <span className={`font-display text-base ${b.amount > 0 ? "text-gold" : "text-muted-foreground"}`}>
+                                    {b.amount > 0 ? "+" : ""}{b.amount}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="bg-gold/5 border border-gold/20 p-3 flex items-start gap-2">
+                            <Icon name="Info" size={14} className="text-gold mt-0.5 shrink-0" />
+                            <p className="font-body text-[11px] text-tea-dark leading-relaxed">
+                              Баллами можно оплатить до 30% стоимости заказа. Срок действия — 12 месяцев.
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     {accountTab === "favourites" && (
                       <div className="text-center py-8">
                         <span className="text-4xl mb-3 block">🍵</span>
@@ -1001,6 +1173,18 @@ export default function Index() {
         onClose={() => setQuizOpen(false)}
         teas={teas}
         onAddToCart={addToCart}
+      />
+
+      {/* ═══ ДЕТАЛЬНАЯ КАРТОЧКА ═══ */}
+      <TeaDetail
+        tea={detailId !== null ? teas.find(t => t.id === detailId) ?? null : null}
+        open={detailId !== null}
+        onClose={() => setDetailId(null)}
+        onAddToCart={(id, qty) => {
+          for (let i = 0; i < qty; i++) addToCart(id);
+        }}
+        allTeas={teas}
+        onOpenTea={(id) => setDetailId(id)}
       />
 
     </div>
