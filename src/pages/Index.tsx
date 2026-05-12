@@ -205,13 +205,32 @@ export default function Index() {
 
       {/* ═══ ШАПКА ═══ */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-cream/96 backdrop-blur-sm border-b border-gold/20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-20 sm:h-24">
 
             {/* Логотип */}
-            <div className="flex flex-col leading-none cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-              <span className="font-display text-2xl font-light tracking-widest text-tea-dark">月茶</span>
-              <span className="text-[9px] font-body tracking-[0.25em] uppercase text-gold mt-0.5">Лунный Чай</span>
+            <div
+              className="flex items-center gap-3 cursor-pointer group"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              {/* Иконка-эмблема */}
+              <div className="relative w-11 h-11 sm:w-12 sm:h-12 shrink-0">
+                <div className="absolute inset-0 border border-gold rounded-full" />
+                <div className="absolute inset-1 border border-gold/40 rounded-full" />
+                <div className="absolute inset-0 flex items-center justify-center font-display text-gold text-xl sm:text-2xl leading-none">
+                  月
+                </div>
+              </div>
+
+              {/* Название */}
+              <div className="flex flex-col leading-none">
+                <span className="font-display text-2xl sm:text-3xl font-light text-tea-dark tracking-wide group-hover:text-gold transition-colors">
+                  Лунный Чай
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-body tracking-[0.3em] uppercase text-gold mt-1">
+                  Премиум · С 2019
+                </span>
+              </div>
             </div>
 
             <nav className="hidden md:flex items-center gap-8">
@@ -660,9 +679,16 @@ export default function Index() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             <div className="md:col-span-2">
-              <div className="flex flex-col leading-none mb-4">
-                <span className="font-display text-3xl font-light tracking-widest text-cream">月茶</span>
-                <span className="text-[9px] font-body tracking-[0.25em] uppercase text-gold mt-1">Лунный Чай</span>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="relative w-12 h-12 shrink-0">
+                  <div className="absolute inset-0 border border-gold rounded-full" />
+                  <div className="absolute inset-1 border border-gold/40 rounded-full" />
+                  <div className="absolute inset-0 flex items-center justify-center font-display text-gold text-2xl leading-none">月</div>
+                </div>
+                <div className="flex flex-col leading-none">
+                  <span className="font-display text-2xl font-light text-cream tracking-wide">Лунный Чай</span>
+                  <span className="text-[10px] font-body tracking-[0.3em] uppercase text-gold mt-1">Премиум · С 2019</span>
+                </div>
               </div>
               <p className="font-body text-xs text-cream/40 leading-relaxed max-w-xs">
                 Редкие чаи из Китая, Тайваня и Японии. Прямые поставки с лучших плантаций мира с 2019 года.
