@@ -3,6 +3,7 @@ import Icon from "@/components/ui/icon";
 import TeaQuiz from "@/components/TeaQuiz";
 import TeaDetail from "@/components/TeaDetail";
 import CatalogFilters, { FilterState } from "@/components/CatalogFilters";
+import BigLogo from "@/components/BigLogo";
 
 const IMG = {
   hero: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/34bceae3-3def-4e2f-bd26-f6d8573a6b7b.jpg",
@@ -777,6 +778,8 @@ export default function Index() {
       </section>
 
       {/* ═══ ФУТЕР ═══ */}
+      <BigLogo />
+
       <footer className="bg-tea-dark py-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
