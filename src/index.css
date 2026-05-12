@@ -431,6 +431,24 @@
 }
 
 /* Профиль — аватар */
+/* Опции квиза */
+.quiz-option {
+  border: 1px solid rgba(184, 148, 42, 0.25);
+  background: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.quiz-option:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px 2px rgba(212, 175, 55, 0.3);
+  transform: translateY(-1px);
+}
+.quiz-option.active {
+  border-color: var(--gold);
+  background: rgba(184, 148, 42, 0.08);
+  box-shadow: 0 0 16px 3px rgba(212, 175, 55, 0.4);
+}
+
 .avatar-gold {
   width: 48px;
   height: 48px;

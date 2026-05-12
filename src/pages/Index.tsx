@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import TeaQuiz from "@/components/TeaQuiz";
 
 const IMG = {
   hero: "https://cdn.poehali.dev/projects/2608d454-ee87-4107-a637-5c661ed75f9d/files/03046ac1-b07a-4e4d-af17-78c1d413f3b4.jpg",
@@ -74,6 +75,7 @@ export default function Index() {
   const [feedbackForm, setFeedbackForm] = useState({ name: "", contact: "", message: "" });
   const [callbackSent, setCallbackSent] = useState(false);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -148,6 +150,10 @@ export default function Index() {
 
             <nav className="hidden md:flex items-center gap-8">
               <a href="#catalog" className="nav-link">Каталог</a>
+              <button onClick={() => setQuizOpen(true)} className="nav-link flex items-center gap-1.5 text-gold hover:text-gold">
+                <Icon name="Sparkles" size={11} />
+                Подобрать чай
+              </button>
               <a href="#gift" className="nav-link">Подарки</a>
               <a href="#about" className="nav-link">О нас</a>
               <a href="#delivery" className="nav-link">Доставка</a>
@@ -219,16 +225,17 @@ export default function Index() {
             </p>
             <div className="animate-fade-in-up delay-400 flex flex-wrap gap-4">
               <button
-                className="btn-gold btn-glow px-8 py-3.5"
-                onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}
+                className="btn-gold btn-glow px-8 py-3.5 flex items-center gap-2"
+                onClick={() => setQuizOpen(true)}
               >
-                Перейти в каталог
+                <Icon name="Sparkles" size={13} />
+                Подобрать чай
               </button>
               <button
                 className="btn-outline-gold btn-glow px-8 py-3.5 border-cream/50 text-cream"
-                onClick={() => setModal("callback")}
+                onClick={() => document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" })}
               >
-                Обратный звонок
+                В каталог
               </button>
             </div>
           </div>
@@ -907,6 +914,14 @@ export default function Index() {
 
         </div>
       )}
+
+      {/* ═══ КВИЗ ═══ */}
+      <TeaQuiz
+        open={quizOpen}
+        onClose={() => setQuizOpen(false)}
+        teas={teas}
+        onAddToCart={addToCart}
+      />
 
     </div>
   );
